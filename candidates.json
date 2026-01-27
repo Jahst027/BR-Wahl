@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Max Mustermann",
+    "info": "Produktion · 8 Jahre im Betrieb · Schwerpunkt Arbeitssicherheit",
+    "photo": "assets/max.jpg"
+  },
+  {
+    "name": "Erika Beispiel",
+    "info": "Verwaltung · Kommunikation & Organisation · Teilzeit",
+    "photo": "assets/erika.jpg"
+  },
+  {
+    "name": "Thomas Demo",
+    "info": "IT · Digitalisierung · Ansprechpartner für mobiles Arbeiten",
+    "photo": "assets/thomas.jpg"
+  }
+]
