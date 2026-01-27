@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BR Wahl – Kandidaten</title>
+
+  <!-- Swiper (Slideshow) via CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
+
+  <style>
+    body{font-family:system-ui;margin:0;background:#0b0b0c;color:#f2f2f2}
+    header{padding:14px 16px;position:sticky;top:0;background:#0b0b0c;border-bottom:1px solid #222}
+    header h1{font-size:16px;margin:0;font-weight:600}
+    .wrap{max-width:820px;margin:0 auto}
+    .swiper{height: calc(100vh - 52px);}
+    .card{display:flex;flex-direction:column;gap:14px;padding:18px}
+    img{width:100%;max-height:55vh;object-fit:cover;border-radius:14px;border:1px solid #222}
+    .name{font-size:22px;font-weight:700;margin:0}
+    .info{font-size:16px;opacity:.92;line-height:1.35;margin:0}
+    .hint{font-size:13px;opacity:.7;margin:10px 16px}
+    .status{font-size:12px;opacity:.75;margin:0 16px 14px 16px}
+  </style>
+</head>
+<body>
+  <header class="wrap"><h1>BR Wahl – Kandidaten</h1></header>
+
+  <div class="wrap">
+    <div class="swiper">
+      <div class="swiper-wrapper" id="slides"></div>
+      <div class="swiper-pagination"></div>
+    </div>
+    <p class="hint">Wischen: links/rechts · Punkte unten</p>
+    <p class="status" id="status">Start…</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script>
+    function setStatus(msg){
+      const el = document.getElementById('status');
+      if (el) el.textContent = msg;
+    }
+
+    function showError(title, msg){
+      document.getElementById('slides').innerHTML = `
+        <div class="swiper-slide">
+          <div class="card">
+            <p class="name">${title}</p>
+            <p class="info">${msg}</p>
+          </div>
+        </div>`;
+    }
+
+    async function main(){
+      try {
+        setStatus("Lade candidates.json …");
+
+        // Wichtig: credentials include, damit Cookie für den Fetch mitgeschickt wird
+        const res = await fetch('/candidates.json', {
+          cache: 'no-store',
+          credentials: 'include'
+        });
+
+        setStatus("Antwort candidates.json: HTTP " + res.status);
+
+        const text = await res.text();
+
+        // Wenn HTML zurückkommt (Login-Seite), erkennen wir das
+        if (text.trim().startsWith('<')) {
+          showError(
+            "Login/Cookie Problem",
+            "Beim Laden von candidates.json kam HTML statt JSON zurück. Bitte öffne die Seite erneut mit ?pw=TEST123 (Inkognito) oder Cookie-Flags müssen angepasst werden."
+          );
+          return;
+        }
+
+        let candidates;
+        try {
+          candidates = JSON.parse(text);
+        } catch (e) {
+          showError("JSON-Fehler", "candidates.json konnte nicht geparst werden: " + e.message);
+          return;
+        }
+
+        if (!Array.isArray(candidates) || candidates.length === 0) {
+          showError("Fehler", "candidates.json ist leer oder hat ein falsches Format.");
+          return;
+        }
+
+        const slidesEl = document.getElementById('slides');
+        slidesEl.innerHTML = candidates.map(c => `
+          <div class="swiper-slide">
+            <div class="card">
+              <img src="/${c.photo}" alt="${c.name}" onerror="this.style.display='none'">
+              <p class="name">${c.name}</p>
+              <p class="info">${c.info}</p>
+              <p class="info" style="opacity:.65;font-size:13px">Bildpfad: ${c.photo}</p>
+            </div>
+          </div>
+        `).join('');
+
+        new Swiper('.swiper', {
+          loop: true,
+          pagination: { el: '.swiper-pagination' }
+        });
+
+        setStatus("OK – Slideshow geladen (" + candidates.length + " Kandidaten).");
+      } catch (e) {
+        showError("JS-Fehler", (e && e.message) ? e.message : String(e));
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
