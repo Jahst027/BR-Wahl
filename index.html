@@ -30,7 +30,7 @@
       <div class="swiper-wrapper" id="slides"></div>
       <div class="swiper-pagination"></div>
     </div>
-    <p class="hint">Wischen: links/rechts · Punkte unten</p>
+    <p class="hint">LÖSCHEN WENN BENUTZT WIRD hier kann man wischen und da stehen so Punkte hoffentlich</p>
     <p class="status" id="status">Start…</p>
   </div>
 
@@ -104,7 +104,7 @@
           pagination: { el: '.swiper-pagination' }
         });
 
-        setStatus("OK – Slideshow geladen (" + candidates.length + " Kandidaten).");
+        setStatus("OK – hat richtig geladen - LÖSCHEN WENN BENUTZT WIRD (" + candidates.length + " Kandidaten).");
       } catch (e) {
         showError("JS-Fehler", (e && e.message) ? e.message : String(e));
       }
