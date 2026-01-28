@@ -8,10 +8,30 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
   <style>
-    body{margin:0;font-family:system-ui;background:#0b0b0c;color:#fff}
-    header{padding:14px 16px;border-bottom:1px solid #222}
-    h1{font-size:16px;margin:0}
-    .wrap{max-width:900px;margin:0 auto}
+   html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background-image: url("assets/background.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Overlay für bessere Lesbarkeit */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.35); /* Stärke anpassbar */
+  z-index: -1;
+}
 
     /* Übersicht */
     #overview{padding:16px}
