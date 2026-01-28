@@ -17,7 +17,7 @@
     #overview{padding:16px}
     .grid{
       display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+      grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
       gap:10px;
     }
     .btn{
@@ -32,7 +32,7 @@
 
     /* Slideshow */
     #slideshow{display:none; position:relative}
-    .swiper{height:calc(100vh - 52px - 28px);} /* Header + Statusbar */
+    .swiper{height:calc(100vh - 52px - 30px);} /* Header + Statusbar */
     .back{
       position:absolute;
       top:10px;
@@ -53,54 +53,60 @@
       flex-direction:column;
       background:#0b0b0c;
     }
-
     .photoWrap{
-      position:relative;
-      flex: 0 0 50%;
-      min-height: 45%;
+      flex: 0 0 40%;
+      min-height: 35%;
       background:#111;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
     .photoWrap img{
       width:100%;
       height:100%;
-      object-fit:contain;
+      object-fit:contain; /* GANZES BILD, kein Abschneiden */
       background:#111;
       display:block;
     }
-
     .content{
-      flex: 1 1 auto;
-      min-height: 0; /* wichtig für korrektes Scrolling in flex */
+      flex:1 1 auto;
+      min-height:0;
       padding:14px 16px 18px;
       border-top:1px solid #222;
-      overflow:auto; /* scrollbarer Textbereich */
+      overflow:auto; /* scrollbarer Text */
       background:#0b0b0c;
     }
     .name{font-size:22px;font-weight:700;margin:0 0 10px}
     .text{font-size:15px;line-height:1.45;margin:0;opacity:.95;white-space:pre-wrap}
 
-    /* Statusbar ganz unten */
+    /* Statusbar */
     .statusbar{
       position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
+      left:0; right:0; bottom:0;
       background:#0b0b0c;
       border-top:1px solid #222;
       padding:6px 12px;
       font-size:12px;
-      opacity:.85;
+      opacity:.9;
       display:flex;
       gap:12px;
       justify-content:center;
       z-index:20;
+      flex-wrap:wrap;
     }
     .statusbar span{white-space:nowrap}
 
-    /* optional: auf großen Screens etwas mehr Bild */
-    @media (min-height: 800px){
-      .photoWrap{flex-basis:55%;}
+    /* Fehlerkarte */
+    .errorCard{
+      padding:18px;
+      border:1px solid #2a2a2e;
+      background:#141417;
+      border-radius:12px;
+      margin:16px;
     }
+    .errorTitle{font-weight:700;margin:0 0 8px;font-size:18px}
+    .errorText{margin:0;opacity:.9;line-height:1.35}
+    code{background:#0f0f12;padding:2px 6px;border-radius:6px}
   </style>
 </head>
 <body>
@@ -112,6 +118,7 @@
   <!-- Übersicht -->
   <section id="overview">
     <div class="grid" id="buttons"></div>
+    <div id="overviewError"></div>
   </section>
 
   <!-- Slideshow -->
@@ -125,49 +132,86 @@
 
 </div>
 
-<!-- Kontrollzeile -->
+<!-- Statusbar -->
 <div class="statusbar">
-  <span id="statusCandidates">Kandidaten geladen: 0</span>
-  <span id="statusImages">Bilder geladen: 0/0</span>
+  <span id="statusCandidates">Kandidaten: 0</span>
+  <span id="statusImagesOk">Bilder OK: 0</span>
+  <span id="statusImagesErr">Fehler: 0</span>
+  <span id="statusMsg">Status: Start…</span>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
-let swiper;
+let swiper = null;
 let candidates = [];
-let imagesTotal = 0;
-let imagesLoaded = 0;
+let imagesOk = 0;
+let imagesErr = 0;
 
-function setCandidatesCount(n){
-  document.getElementById('statusCandidates').textContent = `Kandidaten geladen: ${n}`;
+function setText(id, txt){ document.getElementById(id).textContent = txt; }
+function setStatus(msg){ setText('statusMsg', 'Status: ' + msg); }
+
+function showError(whereId, title, msg){
+  const el = document.getElementById(whereId);
+  el.innerHTML = `
+    <div class="errorCard">
+      <p class="errorTitle">${title}</p>
+      <p class="errorText">${msg}</p>
+    </div>`;
 }
-function setImagesCount(loaded, total){
-  document.getElementById('statusImages').textContent = `Bilder geladen: ${loaded}/${total}`;
+
+function resetCounts(){
+  imagesOk = 0; imagesErr = 0;
+  setText('statusImagesOk', 'Bilder OK: 0');
+  setText('statusImagesErr', 'Fehler: 0');
 }
 
-window.__imgLoaded = function(ok){
-  imagesLoaded += 1;
-  setImagesCount(imagesLoaded, imagesTotal);
-};
+window.__imgOk = function(){ imagesOk++; setText('statusImagesOk', 'Bilder OK: ' + imagesOk); };
+window.__imgErr = function(){ imagesErr++; setText('statusImagesErr', 'Fehler: ' + imagesErr); };
 
-async function init(){
+async function loadCandidates(){
+  setStatus('Lade candidates.json…');
+
   const res = await fetch('/candidates.json', { credentials:'include', cache:'no-store' });
-  candidates = await res.json();
+  const body = await res.text();
 
-  // Buttons (alphabetisch wie in JSON)
+  // Falls Middleware/Session nicht greift und HTML zurückkommt:
+  if (body.trim().startsWith('<')) {
+    throw new Error('candidates.json kam als HTML zurück (Login/Cookie). Öffne die Seite erneut mit ?pw=… oder nutze Inkognito.');
+  }
+
+  let data;
+  try {
+    data = JSON.parse(body);
+  } catch (e) {
+    throw new Error('candidates.json ist kein gültiges JSON: ' + e.message);
+  }
+
+  if (!Array.isArray(data)) throw new Error('candidates.json muss ein Array sein.');
+  return data;
+}
+
+function normalizeCandidate(c){
+  // Defensive: falls Felder fehlen, nicht alles zerlegen
+  return {
+    fullName: c.fullName ?? '',
+    firstName: c.firstName ?? '',
+    lastName: c.lastName ?? '',
+    photo: c.photo ?? '',
+    text: c.text ?? ''
+  };
+}
+
+function renderOverview(){
   const btns = document.getElementById('buttons');
   btns.innerHTML = candidates.map((c,i)=>`
     <button class="btn" onclick="openSlide(${i})">
-      ${c.lastName}, ${c.firstName}
+      ${escapeHtml(c.lastName)}, ${escapeHtml(c.firstName)}
     </button>
   `).join('');
+}
 
-  imagesTotal = candidates.length;
-  imagesLoaded = 0;
-  setCandidatesCount(candidates.length);
-  setImagesCount(imagesLoaded, imagesTotal);
-
-  // Slides
+function renderSlides(){
+  resetCounts();
   const slides = document.getElementById('slides');
   slides.innerHTML = candidates.map((c)=>`
     <div class="swiper-slide">
@@ -175,23 +219,24 @@ async function init(){
         <div class="photoWrap">
           <img
             src="/${c.photo}"
-            alt="${c.fullName}"
+            alt="${escapeAttr(c.fullName)}"
             loading="eager"
-            onload="window.__imgLoaded(true)"
-            onerror="window.__imgLoaded(false)"
+            onload="window.__imgOk()"
+            onerror="window.__imgErr()"
           >
         </div>
         <div class="content">
-          <p class="name">${c.fullName}</p>
-          <p class="text">${c.text || ''}</p>
+          <p class="name">${escapeHtml(c.fullName)}</p>
+          <p class="text">${escapeHtml(c.text)}</p>
         </div>
       </div>
     </div>
   `).join('');
 
-  swiper = new Swiper('.swiper',{
-    loop: true, /* Wrap-around: erste <-> letzte */
-    pagination:{ el:'.swiper-pagination' }
+  if (swiper) swiper.destroy(true, true);
+  swiper = new Swiper('.swiper', {
+    loop: true,
+    pagination: { el: '.swiper-pagination' }
   });
 }
 
@@ -200,9 +245,45 @@ function openSlide(index){
   document.getElementById('slideshow').style.display='block';
   swiper.slideToLoop(index, 0);
 }
+
 function showOverview(){
   document.getElementById('slideshow').style.display='none';
   document.getElementById('overview').style.display='block';
+}
+
+/* Helpers um HTML-Injection zu vermeiden */
+function escapeHtml(str){
+  return String(str)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#39;");
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+async function init(){
+  try {
+    const data = await loadCandidates();
+    candidates = data.map(normalizeCandidate);
+
+    setText('statusCandidates', 'Kandidaten: ' + candidates.length);
+    setStatus('OK – Daten geladen');
+
+    renderOverview();
+    renderSlides();
+  } catch (e) {
+    setText('statusCandidates', 'Kandidaten: 0');
+    setText('statusImagesOk', 'Bilder OK: 0');
+    setText('statusImagesErr', 'Fehler: 0');
+    setStatus('Fehler');
+
+    showError(
+      'overviewError',
+      'Fehler beim Laden',
+      `${escapeHtml(e.message)}<br><br>Teste: <code>/candidates.json?pw=TEST123</code>`
+    );
+  }
 }
 
 init();
