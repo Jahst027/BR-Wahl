@@ -1,292 +1,156 @@
-<!doctype html>
-<html lang="de">
-<head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>BR Wahl – Kandidaten</title>
-
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
-
-  <style>
-    body{margin:0;font-family:system-ui;background:#0b0b0c;color:#fff}
-    header{padding:14px 16px;border-bottom:1px solid #222}
-    h1{font-size:16px;margin:0}
-    .wrap{max-width:900px;margin:0 auto}
-
-    /* Übersicht */
-    #overview{padding:16px}
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-      gap:10px;
-    }
-    .btn{
-      background:#1c1c1f;
-      border:1px solid #2a2a2e;
-      color:#fff;
-      padding:12px;
-      border-radius:10px;
-      font-size:14px;
-      text-align:center;
-    }
-
-    /* Slideshow */
-    #slideshow{display:none; position:relative}
-    .swiper{height:calc(100vh - 52px - 30px);} /* Header + Statusbar */
-    .back{
-      position:absolute;
-      top:10px;
-      left:10px;
-      z-index:10;
-      background:rgba(0,0,0,.6);
-      border:1px solid #333;
-      color:#fff;
-      padding:6px 10px;
-      border-radius:8px;
-      font-size:13px;
-    }
-
-    /* Slide Layout: Bild oben, Text unten */
-    .slide{
-      height:100%;
-      display:flex;
-      flex-direction:column;
-      background:#0b0b0c;
-    }
-    .photoWrap{
-      flex: 0 0 40%;
-      min-height: 35%;
-      background:#111;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
-    .photoWrap img{
-      width:100%;
-      height:100%;
-      object-fit:contain; /* GANZES BILD, kein Abschneiden */
-      background:#111;
-      display:block;
-    }
-    .content{
-      flex:1 1 auto;
-      min-height:0;
-      padding:14px 16px 18px;
-      border-top:1px solid #222;
-      overflow:auto; /* scrollbarer Text */
-      background:#0b0b0c;
-    }
-    .name{font-size:22px;font-weight:700;margin:0 0 10px}
-    .text{font-size:15px;line-height:1.45;margin:0;opacity:.95;white-space:pre-wrap}
-
-    /* Statusbar */
-    .statusbar{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      background:#0b0b0c;
-      border-top:1px solid #222;
-      padding:6px 12px;
-      font-size:12px;
-      opacity:.9;
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      z-index:20;
-      flex-wrap:wrap;
-    }
-    .statusbar span{white-space:nowrap}
-
-    /* Fehlerkarte */
-    .errorCard{
-      padding:18px;
-      border:1px solid #2a2a2e;
-      background:#141417;
-      border-radius:12px;
-      margin:16px;
-    }
-    .errorTitle{font-weight:700;margin:0 0 8px;font-size:18px}
-    .errorText{margin:0;opacity:.9;line-height:1.35}
-    code{background:#0f0f12;padding:2px 6px;border-radius:6px}
-  </style>
-</head>
-<body>
-
-<header class="wrap"><h1>BR Wahl – Kandidaten</h1></header>
-
-<div class="wrap">
-
-  <!-- Übersicht -->
-  <section id="overview">
-    <div class="grid" id="buttons"></div>
-    <div id="overviewError"></div>
-  </section>
-
-  <!-- Slideshow -->
-  <section id="slideshow">
-    <button class="back" onclick="showOverview()">Übersicht</button>
-    <div class="swiper">
-      <div class="swiper-wrapper" id="slides"></div>
-      <div class="swiper-pagination"></div>
-    </div>
-  </section>
-
-</div>
-
-<!-- Statusbar -->
-<div class="statusbar">
-  <span id="statusCandidates">Kandidaten: 0</span>
-  <span id="statusImagesOk">Bilder OK: 0</span>
-  <span id="statusImagesErr">Fehler: 0</span>
-  <span id="statusMsg">Status: Start…</span>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script>
-let swiper = null;
-let candidates = [];
-let imagesOk = 0;
-let imagesErr = 0;
-
-function setText(id, txt){ document.getElementById(id).textContent = txt; }
-function setStatus(msg){ setText('statusMsg', 'Status: ' + msg); }
-
-function showError(whereId, title, msg){
-  const el = document.getElementById(whereId);
-  el.innerHTML = `
-    <div class="errorCard">
-      <p class="errorTitle">${title}</p>
-      <p class="errorText">${msg}</p>
-    </div>`;
-}
-
-function resetCounts(){
-  imagesOk = 0; imagesErr = 0;
-  setText('statusImagesOk', 'Bilder OK: 0');
-  setText('statusImagesErr', 'Fehler: 0');
-}
-
-window.__imgOk = function(){ imagesOk++; setText('statusImagesOk', 'Bilder OK: ' + imagesOk); };
-window.__imgErr = function(){ imagesErr++; setText('statusImagesErr', 'Fehler: ' + imagesErr); };
-
-async function loadCandidates(){
-  setStatus('Lade candidates.json…');
-
-  const res = await fetch('/candidates.json', { credentials:'include', cache:'no-store' });
-  const body = await res.text();
-
-  // Falls Middleware/Session nicht greift und HTML zurückkommt:
-  if (body.trim().startsWith('<')) {
-    throw new Error('candidates.json kam als HTML zurück (Login/Cookie). Öffne die Seite erneut mit ?pw=… oder nutze Inkognito.');
+[
+  {
+    "fullName": "Alex Burchell",
+    "firstName": "Alex",
+    "lastName": "Burchell",
+    "photo": "assets/alex.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Rana Erhardt",
+    "firstName": "Rana",
+    "lastName": "Erhardt",
+    "photo": "assets/rana.jpg",
+    "text": "Hier teste ich\nZeilenumbrüche\nund\nsowas\nalles!\n\nWarum sollte jemand\nso viele Absätze benutzen?\n\nWas ist eigentlich\nmit Smileys?\n🥵🇹🇬🧀"
+  },
+  {
+    "fullName": "Karoline Geist",
+    "firstName": "Karoline",
+    "lastName": "Geist",
+    "photo": "assets/karoline.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Jana Hieke",
+    "firstName": "Jana",
+    "lastName": "Hieke",
+    "photo": "assets/jana.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Sebastian Horn",
+    "firstName": "Sebastian",
+    "lastName": "Horn",
+    "photo": "assets/sebastian.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Stephan Jahnke",
+    "firstName": "Stephan",
+    "lastName": "Jahnke",
+    "photo": "assets/stephan.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Christoph Krause",
+    "firstName": "Christoph",
+    "lastName": "Krause",
+    "photo": "assets/christoph.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Jan Niklas Kreh",
+    "firstName": "Jan Niklas",
+    "lastName": "Kreh",
+    "photo": "assets/jan.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Sascha Laux",
+    "firstName": "Sascha",
+    "lastName": "Laux",
+    "photo": "assets/sascha.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Davor Mizerit",
+    "firstName": "Davor",
+    "lastName": "Mizerit",
+    "photo": "assets/davor.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Miriam Otteni",
+    "firstName": "Miriam",
+    "lastName": "Otteni",
+    "photo": "assets/miriam.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Arne Peters",
+    "firstName": "Arne",
+    "lastName": "Peters",
+    "photo": "assets/arne.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Raido Rebane",
+    "firstName": "Raido",
+    "lastName": "Rebane",
+    "photo": "assets/raido.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Eva Rieker",
+    "firstName": "Eva",
+    "lastName": "Rieker",
+    "photo": "assets/eva.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Nicole Seubert",
+    "firstName": "Nicole",
+    "lastName": "Seubert",
+    "photo": "assets/nicole_s.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Jane Surber",
+    "firstName": "Jane",
+    "lastName": "Surber",
+    "photo": "assets/jane.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Peter Szabo",
+    "firstName": "Peter",
+    "lastName": "Szabo",
+    "photo": "assets/peter.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Maximilian Struß",
+    "firstName": "Maximilian",
+    "lastName": "Struß",
+    "photo": "assets/maximilian.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Nicole Verreman",
+    "firstName": "Nicole",
+    "lastName": "Verreman",
+    "photo": "assets/nicole_v.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Daniel Wagner",
+    "firstName": "Daniel",
+    "lastName": "Wagner",
+    "photo": "assets/daniel.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Darius Weber",
+    "firstName": "Darius",
+    "lastName": "Weber",
+    "photo": "assets/darius.jpg",
+    "text": ""
+  },
+  {
+    "fullName": "Marc Westerhold",
+    "firstName": "Marc",
+    "lastName": "Westerhold",
+    "photo": "assets/marc.jpg",
+    "text": ""
   }
-
-  let data;
-  try {
-    data = JSON.parse(body);
-  } catch (e) {
-    throw new Error('candidates.json ist kein gültiges JSON: ' + e.message);
-  }
-
-  if (!Array.isArray(data)) throw new Error('candidates.json muss ein Array sein.');
-  return data;
-}
-
-function normalizeCandidate(c){
-  // Defensive: falls Felder fehlen, nicht alles zerlegen
-  return {
-    fullName: c.fullName ?? '',
-    firstName: c.firstName ?? '',
-    lastName: c.lastName ?? '',
-    photo: c.photo ?? '',
-    text: c.text ?? ''
-  };
-}
-
-function renderOverview(){
-  const btns = document.getElementById('buttons');
-  btns.innerHTML = candidates.map((c,i)=>`
-    <button class="btn" onclick="openSlide(${i})">
-      ${escapeHtml(c.lastName)}, ${escapeHtml(c.firstName)}
-    </button>
-  `).join('');
-}
-
-function renderSlides(){
-  resetCounts();
-  const slides = document.getElementById('slides');
-  slides.innerHTML = candidates.map((c)=>`
-    <div class="swiper-slide">
-      <div class="slide">
-        <div class="photoWrap">
-          <img
-            src="/${c.photo}"
-            alt="${escapeAttr(c.fullName)}"
-            loading="eager"
-            onload="window.__imgOk()"
-            onerror="window.__imgErr()"
-          >
-        </div>
-        <div class="content">
-          <p class="name">${escapeHtml(c.fullName)}</p>
-          <p class="text">${escapeHtml(c.text)}</p>
-        </div>
-      </div>
-    </div>
-  `).join('');
-
-  if (swiper) swiper.destroy(true, true);
-  swiper = new Swiper('.swiper', {
-    loop: true,
-    pagination: { el: '.swiper-pagination' }
-  });
-}
-
-function openSlide(index){
-  document.getElementById('overview').style.display='none';
-  document.getElementById('slideshow').style.display='block';
-  swiper.slideToLoop(index, 0);
-}
-
-function showOverview(){
-  document.getElementById('slideshow').style.display='none';
-  document.getElementById('overview').style.display='block';
-}
-
-/* Helpers um HTML-Injection zu vermeiden */
-function escapeHtml(str){
-  return String(str)
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#39;");
-}
-function escapeAttr(str){ return escapeHtml(str); }
-
-async function init(){
-  try {
-    const data = await loadCandidates();
-    candidates = data.map(normalizeCandidate);
-
-    setText('statusCandidates', 'Kandidaten: ' + candidates.length);
-    setStatus('OK – Daten geladen');
-
-    renderOverview();
-    renderSlides();
-  } catch (e) {
-    setText('statusCandidates', 'Kandidaten: 0');
-    setText('statusImagesOk', 'Bilder OK: 0');
-    setText('statusImagesErr', 'Fehler: 0');
-    setStatus('Fehler');
-
-    showError(
-      'overviewError',
-      'Fehler beim Laden',
-      `${escapeHtml(e.message)}<br><br>Teste: <code>/candidates.json?pw=TEST123</code>`
-    );
-  }
-}
-
-init();
-</script>
-</body>
-</html>
+]
