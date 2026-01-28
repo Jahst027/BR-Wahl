@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>BR Wahl – Liste FVK & Friends</title>
+  <title>BR Wahl – Kandidaten</title>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"/>
 
@@ -11,7 +11,6 @@
     body{margin:0;font-family:system-ui;background:#0b0b0c;color:#fff}
     header{padding:14px 16px;border-bottom:1px solid #222}
     h1{font-size:16px;margin:0}
-
     .wrap{max-width:900px;margin:0 auto}
 
     /* Übersicht */
@@ -33,32 +32,7 @@
 
     /* Slideshow */
     #slideshow{display:none; position:relative}
-    .swiper{height:calc(100vh - 52px - 28px);} /* Header + Kontrollzeile */
-    .slide{
-      position:relative;
-      height:100%;
-    }
-    .slide img{
-      width:100%;
-      height:100%;
-      object-fit:cover;
-      display:block;
-    }
-
-    /* Text-Overlay */
-    .overlay{
-      position:absolute;
-      bottom:0;
-      left:0;
-      right:0;
-      max-height:55%;
-      background:linear-gradient(transparent,rgba(0,0,0,.88));
-      padding:18px;
-      overflow:auto;
-    }
-    .name{font-size:22px;font-weight:700;margin:0 0 6px}
-    .text{font-size:15px;line-height:1.35;margin:0}
-
+    .swiper{height:calc(100vh - 52px - 28px);} /* Header + Statusbar */
     .back{
       position:absolute;
       top:10px;
@@ -72,7 +46,39 @@
       font-size:13px;
     }
 
-    /* Kontrollzeile ganz unten */
+    /* Slide Layout: Bild oben, Text unten */
+    .slide{
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      background:#0b0b0c;
+    }
+
+    .photoWrap{
+      position:relative;
+      flex: 0 0 50%;
+      min-height: 45%;
+      background:#111;
+    }
+    .photoWrap img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .content{
+      flex: 1 1 auto;
+      min-height: 0; /* wichtig für korrektes Scrolling in flex */
+      padding:14px 16px 18px;
+      border-top:1px solid #222;
+      overflow:auto; /* scrollbarer Textbereich */
+      background:#0b0b0c;
+    }
+    .name{font-size:22px;font-weight:700;margin:0 0 10px}
+    .text{font-size:15px;line-height:1.45;margin:0;opacity:.95;white-space:pre-wrap}
+
+    /* Statusbar ganz unten */
     .statusbar{
       position:fixed;
       left:0;
@@ -89,11 +95,16 @@
       z-index:20;
     }
     .statusbar span{white-space:nowrap}
+
+    /* optional: auf großen Screens etwas mehr Bild */
+    @media (min-height: 800px){
+      .photoWrap{flex-basis:55%;}
+    }
   </style>
 </head>
 <body>
 
-<header class="wrap"><h1>BR Wahl – Liste FVK & Friends</h1></header>
+<header class="wrap"><h1>BR Wahl – Kandidaten</h1></header>
 
 <div class="wrap">
 
@@ -115,8 +126,8 @@
 
 <!-- Kontrollzeile -->
 <div class="statusbar">
-  <span id="statusCandidates">LÖSCHEN WENN FERTIGKandidaten geladen: 0</span>
-  <span id="statusImages">DAS HIER MUSS AUCH WEGBilder geladen: 0/0</span>
+  <span id="statusCandidates">Kandidaten geladen: 0</span>
+  <span id="statusImages">Bilder geladen: 0/0</span>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -129,16 +140,20 @@ let imagesLoaded = 0;
 function setCandidatesCount(n){
   document.getElementById('statusCandidates').textContent = `Kandidaten geladen: ${n}`;
 }
-
 function setImagesCount(loaded, total){
   document.getElementById('statusImages').textContent = `Bilder geladen: ${loaded}/${total}`;
 }
+
+window.__imgLoaded = function(ok){
+  imagesLoaded += 1;
+  setImagesCount(imagesLoaded, imagesTotal);
+};
 
 async function init(){
   const res = await fetch('/candidates.json', { credentials:'include', cache:'no-store' });
   candidates = await res.json();
 
-  // Buttons (alphabetisch ist bereits in candidates.json)
+  // Buttons (alphabetisch wie in JSON)
   const btns = document.getElementById('buttons');
   btns.innerHTML = candidates.map((c,i)=>`
     <button class="btn" onclick="openSlide(${i})">
@@ -146,24 +161,26 @@ async function init(){
     </button>
   `).join('');
 
-  // Slides
   imagesTotal = candidates.length;
   imagesLoaded = 0;
   setCandidatesCount(candidates.length);
   setImagesCount(imagesLoaded, imagesTotal);
 
+  // Slides
   const slides = document.getElementById('slides');
   slides.innerHTML = candidates.map((c)=>`
     <div class="swiper-slide">
       <div class="slide">
-        <img
-          src="/${c.photo}"
-          alt="${c.fullName}"
-          loading="eager"
-          onload="window.__imgLoaded(true)"
-          onerror="window.__imgLoaded(false)"
-        >
-        <div class="overlay">
+        <div class="photoWrap">
+          <img
+            src="/${c.photo}"
+            alt="${c.fullName}"
+            loading="eager"
+            onload="window.__imgLoaded(true)"
+            onerror="window.__imgLoaded(false)"
+          >
+        </div>
+        <div class="content">
           <p class="name">${c.fullName}</p>
           <p class="text">${c.text || ''}</p>
         </div>
@@ -171,29 +188,17 @@ async function init(){
     </div>
   `).join('');
 
-  // Endlos-Wrap-Around: loop=true
   swiper = new Swiper('.swiper',{
-    loop: true,
+    loop: true, /* Wrap-around: erste <-> letzte */
     pagination:{ el:'.swiper-pagination' }
   });
 }
 
-// global callback für inline onload/onerror
-window.__imgLoaded = function(ok){
-  // ok ist aktuell nur für dich; wir zählen beides als "abgeschlossen"
-  imagesLoaded += 1;
-  setImagesCount(imagesLoaded, imagesTotal);
-};
-
 function openSlide(index){
   document.getElementById('overview').style.display='none';
   document.getElementById('slideshow').style.display='block';
-
-  // Bei loop:true nutzt Swiper intern Duplikat-Slides.
-  // slideToLoop springt korrekt zur "echten" Folie.
   swiper.slideToLoop(index, 0);
 }
-
 function showOverview(){
   document.getElementById('slideshow').style.display='none';
   document.getElementById('overview').style.display='block';
