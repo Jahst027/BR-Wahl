@@ -7,26 +7,12 @@
     "text": "Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test Das ist ein Test "
   },
   {
-    "fullName": "Rana Erhardt",
-    "firstName": "Rana",
-    "lastName": "Erhardt",
-    "photo": "assets/rana.jpg",
-    "text": "Hier teste ich
-    Zeilenumbrüche
-    und
-    sowas
-    alles
-    !
-    warum
-    sollte 
-    jemand
-    so viele
-    absätze
-   benutzen?
-    was ist eigentlich 
-    mit Smileys?
-    🥵🇹🇬🧀"
-  },
+  "fullName": "Rana Erhardt",
+  "firstName": "Rana",
+  "lastName": "Erhardt",
+  "photo": "assets/rana.jpg",
+  "text": "Hier teste ich\nZeilenumbrüche\nund\nsowas\nalles\n!\nwarum\nsollte\njemand\nso viele\nAbsätze\nbenutzen?\nwas ist eigentlich\nmit Smileys?\n🥵🇹🇬🧀"
+},
   {
     "fullName": "Karoline Geist",
     "firstName": "Karoline",
