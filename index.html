@@ -31,6 +31,60 @@ body::before {
   inset: 0;
   background: rgba(255, 255, 255, 0.35); /* Stärke anpassbar */
   z-index: -1;
+
+  /* ===== THEME: Background sichtbar + Lesbarkeit ===== */
+
+/* Textfarbe global hell setzen */
+body {
+  color: #fff;
+}
+
+/* Falls irgendwo Standard-Links */
+a { color: #fff; }
+
+/* Slides/Container NICHT schwarz hinterlegen */
+.slide,
+.content,
+#overview,
+#slideshow,
+.swiper,
+.swiper-slide {
+  background: transparent !important;
+}
+
+/* Textbereich als "Glass"-Card (damit Text lesbar bleibt) */
+.content {
+  background: rgba(0, 0, 0, 0.45) !important;  /* halbtransparent */
+  backdrop-filter: blur(8px);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+/* Buttons in der Übersicht ebenfalls als Glass */
+.btn {
+  background: rgba(0, 0, 0, 0.40) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+}
+
+/* Name + Text im Textbereich */
+.name { color: #fff; }
+.text { color: rgba(255,255,255,0.92); }
+
+/* Bildbereich: kein schwarzer Kasten */
+.photoWrap {
+  background: transparent !important;
+}
+
+/* Bild selbst: keine extra Fläche */
+.photoWrap img {
+  background: transparent !important;
+}
+
+/* Statusbar unten: statt Vollschwarz halbtransparent */
+.statusbar {
+  background: rgba(0,0,0,0.55) !important;
+  backdrop-filter: blur(8px);
+  border-top: 1px solid rgba(255,255,255,0.15) !important;
 }
 
     /* Übersicht */
