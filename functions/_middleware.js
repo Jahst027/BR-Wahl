@@ -1,4 +1,4 @@
-const PASSWORD = "TEST123"; // <-- HIER dein Passwort setzen
+const PASSWORD = "TEST1231"; // <-- HIER dein Passwort setzen
 
 export async function onRequest({ request, next }) {
   const url = new URL(request.url);
