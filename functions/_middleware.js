@@ -1,4 +1,4 @@
-const PASSWORD = "TEST123"; 
+const PASSWORD = "Rhein"; 
 
 export async function onRequest({ request, next }) {
   const url = new URL(request.url);
